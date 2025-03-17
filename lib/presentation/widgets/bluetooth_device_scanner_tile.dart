@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/change_notifier/bluetooth/bluetooth.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/theme/theme_data.dart';
@@ -17,17 +18,31 @@ class _RssiText extends Selector<BluetoothScannerChangeNotifier, int> {
   );
 }
 
-class _ConnectionButton extends Selector<BluetoothScannerChangeNotifier, List<bool>> {
+class _ConnectionButtonStatus extends Equatable {
+  bool connectable;
+  bool isConnected;
+  _ConnectionButtonStatus({
+    required this.connectable,
+    required this.isConnected,
+  });
+  @override
+  List<Object?> get props => [
+    connectable,
+    isConnected,
+  ];
+}
+
+class _ConnectionButton extends Selector<BluetoothScannerChangeNotifier, _ConnectionButtonStatus> {
   _ConnectionButton({
     required int index,
   }) : super(
-    selector: (_, scanner) => [
-      scanner.filteredDevices.skip(index).first.connectable,
-      scanner.filteredDevices.skip(index).first.isConnected,
-    ],
-    builder: (context, result, child) {
-      final connectable = result[0];
-      final isConnected = result[1];
+    selector: (_, scanner) => _ConnectionButtonStatus(
+      connectable: scanner.filteredDevices.skip(index).first.connectable,
+      isConnected: scanner.filteredDevices.skip(index).first.isConnected,
+    ),
+    builder: (context, status, child) {
+      final connectable = status.connectable;
+      final isConnected = status.isConnected;
       final themeData = Theme.of(context);
       final scanner = context.read<BluetoothScannerChangeNotifier>();
       final device = scanner.filteredDevices.skip(index).first;
@@ -70,19 +85,33 @@ class _SelectButton extends StatelessWidget {
   }
 }
 
-class BluetoothDeviceScannerTile extends Selector<BluetoothScannerChangeNotifier, List<bool>> {
+class _BluetoothDeviceScannerTileStatus extends Equatable {
+  bool isConnected;
+  bool isSelected;
+  _BluetoothDeviceScannerTileStatus({
+    required this.isConnected,
+    required this.isSelected,
+  });
+  @override
+  List<Object?> get props => [
+    isConnected,
+    isSelected,
+  ];
+}
+
+class BluetoothDeviceScannerTile extends Selector<BluetoothScannerChangeNotifier, _BluetoothDeviceScannerTileStatus> {
   final int index;
   BluetoothDeviceScannerTile({
     super.key,
     required this.index,
   }) : super(
-    selector: (_, scanner) => [
-      scanner.filteredDevices.skip(index).first.isConnected,
-      scanner.filteredDevices.skip(index).first.isSelected,
-    ],
-    builder: (context, result, child) {
-      final isConnected = result[0];
-      final isSelected = result[1];
+    selector: (_, scanner) => _BluetoothDeviceScannerTileStatus(
+      isConnected: scanner.filteredDevices.skip(index).first.isConnected,
+      isSelected: scanner.filteredDevices.skip(index).first.isSelected,
+    ),
+    builder: (context, status, child) {
+      final isConnected = status.isConnected;
+      final isSelected = status.isSelected;
       final scanner = context.read<BluetoothScannerChangeNotifier>();
       final device = scanner.filteredDevices.skip(index).first;
       final themeData = Theme.of(context);
