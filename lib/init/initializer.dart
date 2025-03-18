@@ -6,8 +6,7 @@ import 'package:flutter_bluetooth_debugger_tool/application/data_stream_task.dar
 import 'package:flutter_bluetooth_debugger_tool/init/timer.dart';
 import 'package:flutter_bluetooth_debugger_tool/service/data_stream/data_stream.dart';
 import 'package:flutter_bluetooth_debugger_tool/service/file/file_handler.dart';
-
-import 'package:flutter_path_utils/path_provider_util.dart';
+import 'package:path_provider_cxs_utils/path_provider_cxs_utils.dart';
 
 part 'application.dart';
 part 'path.dart';

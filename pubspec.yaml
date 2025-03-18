@@ -39,8 +39,6 @@ dependencies:
   provider: ^6.1.2
   permission_handler: ^11.4.0
   synchronized: ^3.3.0+3
-  flutter_path_utils:
-    path: ../flutter_utils/flutter_path_utils
   package_info_plus: ^8.3.0
 
   flutter_blue_plus_cxs_utils:
@@ -63,6 +61,7 @@ dependencies:
     git:
       url: https://github.com/XIAN-SHENG-576692/flutter_cxs_utils.git
       path: packages/path_provider_cxs_utils
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
