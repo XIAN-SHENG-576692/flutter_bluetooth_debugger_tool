@@ -3,6 +3,6 @@ import 'dart:typed_data';
 
 part 'bluetooth_packet.dart';
 
-abstract class DataStream {
+abstract class BluetoothDataStreamManager {
   Stream<BluetoothPacket> get bluetoothPacketStream;
 }

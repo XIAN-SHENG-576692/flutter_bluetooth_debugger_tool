@@ -1,13 +1,23 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bluetooth_debugger_tool/application/data_stream_task.dart';
+import 'dart:async';
 
-class DataStreamTaskChangeNotifier extends ChangeNotifier {
-  final DataStreamTask _dataStreamTask;
-  DataStreamTaskChangeNotifier(this._dataStreamTask) {
-    _dataStreamTask.addSavingBluetoothPacketListener(notifyListeners);
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bluetooth_debugger_tool/application/bluetooth_task.dart';
+
+class BluetoothTaskChangeNotifier extends ChangeNotifier {
+  BluetoothTask bluetoothTask;
+  BluetoothTaskChangeNotifier({
+    required this.bluetoothTask,
+  }) {
+    _subscription = bluetoothTask.isSavingBluetoothPacketStream.listen((_) => notifyListeners());
   }
-  bool get isSaving => _dataStreamTask.isSavingBluetoothPacket;
+  late final StreamSubscription _subscription;
+  bool get isSaving => bluetoothTask.isSavingBluetoothPacket;
   void toggle() {
-    _dataStreamTask.toggleSavingBluetoothPacket();
+    bluetoothTask.toggleSavingBluetoothPacket();
+  }
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

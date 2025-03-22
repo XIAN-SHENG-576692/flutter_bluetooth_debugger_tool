@@ -1,4 +1,4 @@
-part of 'data_stream.dart';
+part of 'bluetooth_data_stream_manager.dart';
 
 enum BluetoothPacketLayer {
   characteristic,

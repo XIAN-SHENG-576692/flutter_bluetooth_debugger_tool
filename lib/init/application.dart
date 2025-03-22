@@ -1,3 +1,3 @@
 part of 'initializer.dart';
 
-late final DataStreamTask dataStreamTask;
+late final BluetoothTask bluetoothTask;

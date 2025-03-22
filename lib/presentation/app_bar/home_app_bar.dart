@@ -4,7 +4,7 @@ import 'package:flutter_bluetooth_debugger_tool/presentation/change_notifier/dat
 import 'package:flutter_bluetooth_debugger_tool/presentation/theme/theme_data.dart';
 import 'package:provider/provider.dart';
 
-class _TaskButton extends Consumer<DataStreamTaskChangeNotifier> {
+class _TaskButton extends Consumer<BluetoothTaskChangeNotifier> {
   _TaskButton() : super(
     builder: (context, taskNotifier, child) {
       final themeData = Theme.of(context);
@@ -30,15 +30,12 @@ class _FilterButton extends Selector<BluetoothScannerChangeNotifier, bool> {
   _FilterButton(BluetoothScannerFilterOption option) : super(
     selector: (_, scanner) => scanner.isSelectedFilterOption(option: option),
     builder: (context, isSelected, child) {
-      final scanner = context.read<BluetoothScannerChangeNotifier>();
+      final filter = context.read<BluetoothScannerChangeNotifier>();
       final themeData = Theme.of(context);
       late final Icon icon;
       switch(option) {
         case BluetoothScannerFilterOption.nameIsNotEmpty:
           icon = Icon(Icons.list);
-          break;
-        case BluetoothScannerFilterOption.isScanned:
-          icon = Icon(Icons.scanner);
           break;
         case BluetoothScannerFilterOption.isConnected:
           icon = Icon(Icons.link);
@@ -51,7 +48,7 @@ class _FilterButton extends Selector<BluetoothScannerChangeNotifier, bool> {
           ? themeData.filterEnabledColor
           : null;
       return IconButton(
-        onPressed: () => scanner.toggleFilterOption(option: option),
+        onPressed: () => filter.toggleFilterOption(option: option),
         icon: icon,
         color: color,
         highlightColor: themeData.screenBackgroundColor,
@@ -65,7 +62,8 @@ class HomeAppBar extends AppBar {
     super.key,
     required ThemeData themeData,
   }) : super(
-    title: Consumer<DataStreamTaskChangeNotifier>(
+    automaticallyImplyLeading: false,
+    title: Consumer<BluetoothTaskChangeNotifier>(
       builder: (_, taskNotifier, __) {
         return _TaskButton();
       },

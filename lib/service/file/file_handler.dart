@@ -1,4 +1,4 @@
-import 'package:flutter_bluetooth_debugger_tool/service/data_stream/data_stream.dart';
+import 'package:flutter_bluetooth_debugger_tool/service/data_stream/bluetooth_data_stream_manager.dart';
 
 part 'bluetooth_packet_file.dart';
 
