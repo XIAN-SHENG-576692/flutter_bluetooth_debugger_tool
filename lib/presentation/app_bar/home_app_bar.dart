@@ -34,6 +34,9 @@ class _FilterButton extends Selector<BluetoothScannerChangeNotifier, bool> {
       final themeData = Theme.of(context);
       late final Icon icon;
       switch(option) {
+        case BluetoothScannerFilterOption.system:
+          icon = Icon(Icons.system_security_update);
+          break;
         case BluetoothScannerFilterOption.nameIsNotEmpty:
           icon = Icon(Icons.list);
           break;

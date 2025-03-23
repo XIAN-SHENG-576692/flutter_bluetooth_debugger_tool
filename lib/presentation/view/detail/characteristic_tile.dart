@@ -6,7 +6,7 @@ import 'package:flutter_bluetooth_debugger_tool/presentation/view/detail/value_d
 import 'package:provider/provider.dart';
 import 'package:flutter_cxs_common_utils/basic/string.dart';
 
-import '../../widgets/snackbar.dart';
+import '../../utils/snackbar.dart';
 import 'descriptor_tile.dart';
 
 class CharacteristicController extends ChangeNotifier {

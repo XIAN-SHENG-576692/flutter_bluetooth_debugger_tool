@@ -5,7 +5,7 @@ import 'package:flutter_bluetooth_debugger_tool/presentation/view/detail/value_d
 import 'package:flutter_cxs_common_utils/basic/string.dart';
 import 'package:provider/provider.dart';
 
-import '../../widgets/snackbar.dart';
+import '../../utils/snackbar.dart';
 
 class DescriptorController extends ChangeNotifier {
   final BluetoothDescriptor descriptor;

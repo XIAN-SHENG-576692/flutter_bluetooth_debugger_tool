@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_debugger_tool/Infrastructure/service/info/info.dart';
 import 'package:flutter_bluetooth_debugger_tool/init/initializer.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/change_notifier/bluetooth/bluetooth.dart' show BluetoothDeviceDetailSelectorChangeNotifier, BluetoothScannerChangeNotifier, BluetoothScannerChangeNotifier;
 import 'package:flutter_bluetooth_debugger_tool/presentation/change_notifier/data_stream_task/data_stream_task.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/screen/home_screen.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/theme/theme_data.dart';
 import 'package:flutter_bluetooth_debugger_tool/service/data_stream/bluetooth_data_stream_manager.dart' show BluetoothDataStreamManager;
+import 'package:flutter_bluetooth_debugger_tool/service/info/info.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -31,6 +33,9 @@ class AppRoot extends StatelessWidget {
       color: themeData.screenBackgroundColor,
       home: MultiProvider(
         providers: [
+          Provider<Info>(create: (_) => InfoImpl(
+            sharedPreferences: sharedPreferences,
+          )),
           Provider<BluetoothDataStreamManager>(create: (_) => bluetoothDataStreamManager),
           ChangeNotifierProvider<BluetoothTaskChangeNotifier>(create: (_) => BluetoothTaskChangeNotifier(bluetoothTask: bluetoothTask)),
         ],

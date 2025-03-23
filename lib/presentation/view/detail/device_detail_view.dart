@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_bluetooth_debugger_tool/Infrastructure/service/data_stream/bluetooth_data_stream_manager.dart';
+import 'package:flutter_bluetooth_debugger_tool/presentation/utils/extra.dart';
 import 'package:flutter_bluetooth_debugger_tool/service/data_stream/bluetooth_data_stream_manager.dart';
 import 'package:provider/provider.dart';
 import '../../change_notifier/bluetooth/bluetooth.dart';
-import '../../widgets/extra.dart';
-import '../../widgets/snackbar.dart';
+import '../../utils/snackbar.dart';
 import 'characteristic_tile.dart';
 import 'descriptor_tile.dart';
 import 'service_tile.dart';
@@ -82,6 +82,7 @@ class _DeviceProvider extends ChangeNotifier {
   }
 
   Future<void> discoverServices(BluetoothDataStreamManagerImplFbp dataStreamManager) async {
+    if(!device.isConnected) return;
     isDiscoveringServices = true;
     notifyListeners();
     try {
@@ -237,7 +238,10 @@ class ConnectionStatusTile extends StatelessWidget {
       title: Selector<_DeviceProvider, BluetoothConnectionState>(
         selector: (_, p) => p.connectionState,
         builder: (_, state, __) {
-          return Text('Device is ${state.name}.');
+          return Text(
+            'Device is ${state.name}.',
+            style: Theme.of(context).textTheme.bodySmall,
+          );
         },
       ),
       trailing: Selector<_DeviceProvider, bool>(

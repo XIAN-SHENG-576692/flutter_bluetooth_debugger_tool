@@ -1,6 +1,7 @@
 part of 'bluetooth.dart';
 
 enum BluetoothScannerFilterOption {
+  system,
   nameIsNotEmpty,
   isConnected,
   connectable,
@@ -13,8 +14,10 @@ class _Option {
 }
 
 class ScanResultBuffer {
+
   final VoidCallback _notifyListeners;
-  late final StreamSubscription _connectionStateSubscription;
+  final BluetoothDevice bluetoothDevice;
+
   late final Timer _readRssiTimer;
   int _rssi;
   int get rssi => _rssi;
@@ -23,7 +26,9 @@ class ScanResultBuffer {
     _rssi = newRssi;
     _notifyListeners();
   }
-  final BluetoothDevice bluetoothDevice;
+
+  final bool system;
+
   bool _connectable;
   bool get connectable => _connectable;
   set connectable(bool newConnectable) {
@@ -31,24 +36,29 @@ class ScanResultBuffer {
     _connectable = newConnectable;
     _notifyListeners();
   }
+
+  late final StreamSubscription _connectionStateSubscription;
+
   ScanResultBuffer({
     required this.bluetoothDevice,
     required int rssi,
+    required this.system,
     required bool connectable,
     required VoidCallback notifyListeners,
   }) :
-        _notifyListeners = notifyListeners,
+        _rssi = rssi,
         _connectable = connectable,
-        _rssi = rssi
+        _notifyListeners = notifyListeners
   {
     _readRssiTimer = Timer.periodic(
       const Duration(milliseconds: 300),
-      (timer) async {
+      (timer) {
         if(!bluetoothDevice.isConnected) return;
-        final rssi = await bluetoothDevice.readRssi();
-        if(_rssi == rssi) return;
-        _rssi = rssi;
-        _notifyListeners();
+        bluetoothDevice.readRssi().then((rssi) {
+          if(_rssi == rssi) return;
+          _rssi = rssi;
+          _notifyListeners();
+        });
       },
     );
     _connectionStateSubscription = bluetoothDevice
@@ -57,9 +67,9 @@ class ScanResultBuffer {
       _notifyListeners();
       });
   }
-  // @override
-  // bool operator ==(Object other) =>
-  //     identical(this, other) || other is ScanResultBuffer && runtimeType == other.runtimeType && scanResult == other.scanResult;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is ScanResultBuffer && runtimeType == other.runtimeType && bluetoothDevice == other.bluetoothDevice;
   void cancel() {
     _connectionStateSubscription.cancel();
     _readRssiTimer.cancel();
@@ -67,19 +77,31 @@ class ScanResultBuffer {
 }
 
 class BluetoothScannerChangeNotifier extends ChangeNotifier {
-  BluetoothScannerChangeNotifier() {
+  final Info info;
+  BluetoothScannerChangeNotifier({
+    required this.info,
+  }) {
     _scanResultsSubscriptions = FlutterBluePlus.scanResults.listen((scanResults) {
       _scanResultsBuffer.addAll(scanResults
         .skip(_scanResultsBuffer.length)
         .map((r) => ScanResultBuffer(
           bluetoothDevice: r.device,
           rssi: r.rssi,
+          system: false,
           connectable: r.advertisementData.connectable,
           notifyListeners: notifyListeners,
         ))
       );
       notifyListeners();
     });
+    for(final option in BluetoothScannerFilterOption.values) {
+      final o = _options.where((o) => o.option == option).first;
+      info.getFilterOption(option).then((value) {
+        if(value == null || o.isSelected == value) return;
+        o.isSelected = !o.isSelected;
+        notifyListeners();
+      });
+    }
   }
   final List<_Option> _options = List.generate(
     BluetoothScannerFilterOption.values.length,
@@ -100,9 +122,10 @@ class BluetoothScannerChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
   bool _filter(ScanResultBuffer buffer) {
+    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.system) && !buffer.system) return false;
+    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.nameIsNotEmpty) && buffer.bluetoothDevice.platformName.isEmpty) return false;
     if(isSelectedFilterOption(option: BluetoothScannerFilterOption.isConnected) && !buffer.bluetoothDevice.isConnected) return false;
     if(isSelectedFilterOption(option: BluetoothScannerFilterOption.connectable) && !buffer.connectable) return false;
-    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.nameIsNotEmpty) && buffer.bluetoothDevice.platformName.isEmpty) return false;
     return true;
   }
   List<ScanResultBuffer> _scanResultsBuffer = [];
@@ -118,6 +141,7 @@ class BluetoothScannerChangeNotifier extends ChangeNotifier {
         return ScanResultBuffer(
           bluetoothDevice: d,
           rssi: b?.rssi ?? 0,
+          system: true,
           connectable: b?.connectable ?? false,
           notifyListeners: notifyListeners,
         );

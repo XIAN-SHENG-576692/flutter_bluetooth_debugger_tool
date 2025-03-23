@@ -19,8 +19,8 @@ extension AppThemeData on ThemeData {
       : Colors.red[900]!;
   Color get stopScanningBluetoothButtonColor => disconnectedBluetoothDeviceTileColor;
   Color get selectedBluetoothDevice => brightness == Brightness.light
-      ? Colors.green
-      : Colors.green[700]!;
+      ? Colors.orange
+      : Colors.orange[700]!;
   Color get savingEnabledColor => brightness == Brightness.light
       ? Colors.green
       : Colors.green[700]!;
