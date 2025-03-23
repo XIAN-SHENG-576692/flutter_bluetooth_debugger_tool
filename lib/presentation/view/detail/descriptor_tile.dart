@@ -10,12 +10,13 @@ import '../../utils/snackbar.dart';
 class DescriptorController extends ChangeNotifier {
   final BluetoothDescriptor descriptor;
   final TextEditingController writeController = TextEditingController();
-  final ValueNotifier<List<int>> value = ValueNotifier([]);
+  ValueObject? value;
   late final StreamSubscription<List<int>> _valueSub;
 
   DescriptorController(this.descriptor) {
     _valueSub = descriptor.lastValueStream.listen((v) {
-      value.value = v;
+      value = ValueObject(value: v);
+      notifyListeners();
     });
   }
 
@@ -45,7 +46,6 @@ class DescriptorController extends ChangeNotifier {
   void dispose() {
     _valueSub.cancel();
     writeController.dispose();
-    value.dispose();
     super.dispose();
   }
 }
@@ -104,13 +104,7 @@ class _ValueSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = context.select<DescriptorController, ValueNotifier<List<int>>>((c) => c.value);
-
-    return ValueListenableBuilder<List<int>>(
-      valueListenable: value,
-      builder: (_, data, __) {
-        return ValueDisplay(value: data);
-      },
-    );
+    final value = context.select<DescriptorController, ValueObject?>((c) => c.value);
+    return (value != null) ? ValueDisplay(value: value) : Column();
   }
 }

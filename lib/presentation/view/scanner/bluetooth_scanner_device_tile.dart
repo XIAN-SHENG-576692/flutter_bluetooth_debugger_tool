@@ -65,14 +65,14 @@ class _SelectButton extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           color: (isSelected)
-            ? themeData.selectedBluetoothDevice
+            ? themeData.selectedBluetoothDeviceColor
             : null,
           shape: BoxShape.circle,
         ),
         child: InkWell(
           customBorder: CircleBorder(),
-          splashColor: themeData.screenBackgroundColor,
-          highlightColor: themeData.screenBackgroundColor,
+          splashColor: themeData.selectedBluetoothDeviceInkColor,
+          highlightColor: themeData.selectedBluetoothDeviceInkColor,
           onTap: () {
             deviceSelector.bluetoothDevice = device;
             deviceSelector.openDeviceDetailView?.call();

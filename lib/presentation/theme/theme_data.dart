@@ -4,12 +4,6 @@ extension AppThemeData on ThemeData {
   Color get screenBackgroundColor => brightness == Brightness.light
       ? Colors.white
       : Colors.black;
-  Color get dragHandleBackgroundColor => brightness == Brightness.light
-      ? Colors.black
-      : Colors.white;
-  Color get dragHandleColor => brightness == Brightness.light
-      ? Colors.white
-      : Colors.black;
   Color get bluetoothColor => brightness == Brightness.light
       ? Colors.blue
       : Colors.indigoAccent;
@@ -18,9 +12,10 @@ extension AppThemeData on ThemeData {
       ? Colors.red
       : Colors.red[900]!;
   Color get stopScanningBluetoothButtonColor => disconnectedBluetoothDeviceTileColor;
-  Color get selectedBluetoothDevice => brightness == Brightness.light
-      ? Colors.orange
-      : Colors.orange[700]!;
+  Color get selectedBluetoothDeviceColor => screenBackgroundColor;
+  Color get selectedBluetoothDeviceInkColor => brightness == Brightness.light
+      ? Colors.black
+      : Colors.white;
   Color get savingEnabledColor => brightness == Brightness.light
       ? Colors.green
       : Colors.green[700]!;

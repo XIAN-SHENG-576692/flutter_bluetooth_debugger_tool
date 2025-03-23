@@ -12,13 +12,13 @@ import 'descriptor_tile.dart';
 class CharacteristicController extends ChangeNotifier {
   final BluetoothCharacteristic characteristic;
   List<BluetoothDescriptor> get descriptors => characteristic.descriptors;
-  List<int> value = [];
+  ValueObject? value;
   final TextEditingController writeController = TextEditingController();
   late final StreamSubscription<List<int>> _valueSub;
 
   CharacteristicController(this.characteristic) {
     _valueSub = characteristic.lastValueStream.listen((v) {
-      value = v;
+      value = ValueObject(value: v);
       notifyListeners();
     });
   }
@@ -147,8 +147,8 @@ class _ValueDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = context.select<CharacteristicController, List<int>>((c) => c.value);
-    return ValueDisplay(value: value);
+    final value = context.select<CharacteristicController, ValueObject?>((c) => c.value);
+    return (value != null) ? ValueDisplay(value: value) : Column();
   }
 }
 
