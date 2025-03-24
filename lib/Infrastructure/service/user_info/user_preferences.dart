@@ -1,11 +1,11 @@
-import 'package:flutter_bluetooth_debugger_tool/service/info/info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../presentation/change_notifier/bluetooth/bluetooth.dart';
+import '../../../service/user_info/user_preferences.dart';
 
-class InfoImpl extends Info {
+class UserPreferencesImpl extends UserPreferences {
   final SharedPreferences sharedPreferences;
-  InfoImpl({
+  UserPreferencesImpl({
     required this.sharedPreferences,
   });
   @override

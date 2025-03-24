@@ -77,9 +77,9 @@ class ScanResultBuffer {
 }
 
 class BluetoothScannerChangeNotifier extends ChangeNotifier {
-  final Info info;
+  final UserPreferences userPreferences;
   BluetoothScannerChangeNotifier({
-    required this.info,
+    required this.userPreferences,
   }) {
     _scanResultsSubscriptions = FlutterBluePlus.scanResults.listen((scanResults) {
       _scanResultsBuffer.addAll(scanResults
@@ -96,7 +96,7 @@ class BluetoothScannerChangeNotifier extends ChangeNotifier {
     });
     for(final option in BluetoothScannerFilterOption.values) {
       final o = _options.where((o) => o.option == option).first;
-      info.getFilterOption(option).then((value) {
+      userPreferences.getFilterOption(option).then((value) {
         if(value == null || o.isSelected == value) return;
         o.isSelected = !o.isSelected;
         notifyListeners();
@@ -119,6 +119,7 @@ class BluetoothScannerChangeNotifier extends ChangeNotifier {
   }) {
     final o = _options.where((o) => o.option == option).first;
     o.isSelected = !o.isSelected;
+    userPreferences.setFilterOption(option, o.isSelected);
     notifyListeners();
   }
   bool _filter(ScanResultBuffer buffer) {
