@@ -11,7 +11,7 @@ class _RssiText extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final rssi = context.select<ScanResultBuffer, int>((b) => b.rssi);
+    final rssi = context.select<BluetoothScannerDeviceTileChangeNotifier, int>((b) => b.buffer.rssi);
     return Text(rssi.toString());
   }
 }
@@ -22,10 +22,10 @@ class _ConnectionButton extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final device = context.select<BluetoothScannerDeviceTileChangeNotifier, BluetoothDevice>((b) => b.buffer.bluetoothDevice);
+    final connectable = context.select<BluetoothScannerDeviceTileChangeNotifier, bool>((b) => b.buffer.connectable);
+    final isConnected = context.select<BluetoothScannerDeviceTileChangeNotifier, bool>((b) => b.buffer.isConnected);
     final themeData = Theme.of(context);
-    final device = context.select<ScanResultBuffer, BluetoothDevice>((b) => b.bluetoothDevice);
-    final isConnected = context.select<ScanResultBuffer, bool>((b) => b.bluetoothDevice.isConnected);
-    final connectable = context.select<ScanResultBuffer, bool>((b) => b.connectable);
     VoidCallback? onPressed = (connectable)
       ? () async {
         try{
@@ -57,7 +57,7 @@ class _SelectButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final device = context.select<ScanResultBuffer, BluetoothDevice>((b) => b.bluetoothDevice);
+    final device = context.select<BluetoothScannerDeviceTileChangeNotifier, BluetoothDevice>((b) => b.buffer.bluetoothDevice);
     final isSelected = context.select<BluetoothDeviceDetailSelectorChangeNotifier, bool>((s) => s.bluetoothDevice == device);
     final deviceSelector = context.read<BluetoothDeviceDetailSelectorChangeNotifier>();
     return Material(
@@ -96,8 +96,8 @@ class BluetoothScannerDeviceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final device = context.select<ScanResultBuffer, BluetoothDevice>((b) => b.bluetoothDevice);
-    final isConnected = context.select<ScanResultBuffer, bool>((b) => b.bluetoothDevice.isConnected);
+    final buffer = context.select<BluetoothScannerDeviceTileChangeNotifier, ScanResultBuffer>((b) => b.buffer);
+    final isConnected = context.select<BluetoothScannerDeviceTileChangeNotifier, bool>((b) => b.buffer.isConnected);
     final rssiText = _RssiText();
     final connectionButton = _ConnectionButton();
     final selectButton = _SelectButton();
@@ -106,8 +106,8 @@ class BluetoothScannerDeviceTile extends StatelessWidget {
         : themeData.disconnectedBluetoothDeviceTileColor;
     final title = BluetoothWidgetDevice.buildTitle(
       context: context,
-      deviceName: device.platformName,
-      deviceId: device.remoteId.str,
+      deviceName: buffer.deviceName,
+      deviceId: buffer.deviceId,
     );
     return ListTile(
       leading: rssiText,

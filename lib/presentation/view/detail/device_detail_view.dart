@@ -56,7 +56,7 @@ class _DeviceProvider extends ChangeNotifier {
     });
 
     _readRssiTimer = Timer.periodic(
-      const Duration(milliseconds: 300),
+      const Duration(milliseconds: 100),
       (timer) async {
         if(!device.isConnected) return;
         final newRssi = await device.readRssi();

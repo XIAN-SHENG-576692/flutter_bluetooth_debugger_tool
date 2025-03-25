@@ -12,18 +12,15 @@ class BluetoothScannerView extends StatelessWidget {
     return BluetoothIsOnView(
       isOnView: RefreshIndicator(
         onRefresh: scanner.refresh,
-        child: ProxyProvider<BluetoothScannerChangeNotifier, Iterable<ScanResultBuffer>>(
-          update: (context, scanner, prev) => scanner.filteredScanResultsBuffer,
-          builder: (context, _) {
-            final buffers = context.watch<Iterable<ScanResultBuffer>>();
+        child: Selector<BluetoothScannerChangeNotifier, int>(
+          selector: (context, scanner) => scanner.filteredScanResultsBuffer.length,
+          builder: (context, length, _) {
             return ListView.builder(
-              itemCount: buffers.length,
+              itemCount: length,
               itemBuilder: (context, index) {
-                return ProxyProvider<Iterable<ScanResultBuffer>, ScanResultBuffer>(
-                  update: (context, buffers, prev) => buffers.elementAt(index),
-                  builder: (context, _) {
-                    return BluetoothScannerDeviceTile();
-                  },
+                return ChangeNotifierProvider<BluetoothScannerDeviceTileChangeNotifier>(
+                  create: (_) => BluetoothScannerDeviceTileChangeNotifier(scanner: scanner, index: index),
+                  child: BluetoothScannerDeviceTile(),
                 );
               },
             );

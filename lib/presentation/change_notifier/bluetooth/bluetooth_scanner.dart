@@ -39,6 +39,10 @@ class ScanResultBuffer {
 
   late final StreamSubscription _connectionStateSubscription;
 
+  String get deviceName => bluetoothDevice.platformName;
+  String get deviceId => bluetoothDevice.remoteId.str;
+  bool get isConnected => bluetoothDevice.isConnected;
+
   ScanResultBuffer({
     required this.bluetoothDevice,
     required int rssi,
@@ -51,9 +55,9 @@ class ScanResultBuffer {
         _notifyListeners = notifyListeners
   {
     _readRssiTimer = Timer.periodic(
-      const Duration(milliseconds: 300),
+      const Duration(milliseconds: 100),
       (timer) {
-        if(!bluetoothDevice.isConnected) return;
+        if(!isConnected) return;
         bluetoothDevice.readRssi().then((rssi) {
           if(_rssi == rssi) return;
           _rssi = rssi;
@@ -67,13 +71,16 @@ class ScanResultBuffer {
       _notifyListeners();
       });
   }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) || other is ScanResultBuffer && runtimeType == other.runtimeType && bluetoothDevice == other.bluetoothDevice;
+
   void cancel() {
     _connectionStateSubscription.cancel();
     _readRssiTimer.cancel();
   }
+
 }
 
 class BluetoothScannerChangeNotifier extends ChangeNotifier {
@@ -124,13 +131,14 @@ class BluetoothScannerChangeNotifier extends ChangeNotifier {
   }
   bool _filter(ScanResultBuffer buffer) {
     if(isSelectedFilterOption(option: BluetoothScannerFilterOption.system) && !buffer.system) return false;
-    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.nameIsNotEmpty) && buffer.bluetoothDevice.platformName.isEmpty) return false;
-    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.isConnected) && !buffer.bluetoothDevice.isConnected) return false;
+    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.nameIsNotEmpty) && buffer.deviceName.isEmpty) return false;
+    if(isSelectedFilterOption(option: BluetoothScannerFilterOption.isConnected) && !buffer.isConnected) return false;
     if(isSelectedFilterOption(option: BluetoothScannerFilterOption.connectable) && !buffer.connectable) return false;
     return true;
   }
   List<ScanResultBuffer> _scanResultsBuffer = [];
-  Iterable<ScanResultBuffer> get filteredScanResultsBuffer => _scanResultsBuffer.where(_filter);
+  List<ScanResultBuffer> get filteredScanResultsBuffer => _scanResultsBuffer.where(_filter).toList(growable: false);
+  // Iterable<ScanResultBuffer> get filteredScanResultsBuffer => _scanResultsBuffer.where(_filter);
   late final StreamSubscription _scanResultsSubscriptions;
 
   Future refresh() async {

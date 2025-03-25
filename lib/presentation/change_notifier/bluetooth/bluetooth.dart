@@ -7,3 +7,4 @@ import '../../../service/user_info/user_preferences.dart';
 
 part 'bluetooth_device_detail_selector.dart';
 part 'bluetooth_scanner.dart';
+part 'bluetooth_scanner_device_tile.dart';
