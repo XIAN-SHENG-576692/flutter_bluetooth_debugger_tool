@@ -1,16 +1,16 @@
 # flutter_bluetooth_debugger_tool
 
-A new Flutter project.
+`flutter_bluetooth_debugger_tool` is a Flutter-based tool designed for debugging Bluetooth devices.  
+It allows you to scan, monitor, and record Bluetooth communication data, and export the results into a CSV file for further analysis.
 
-## Getting Started
+## ✨ Features
 
-This project is a starting point for a Flutter application.
+- 🔍 Bluetooth device scanning with real-time RSSI and connection status
+- 📶 Live data stream from connected devices
+- 💾 Save Bluetooth packets to a CSV file
+- 🛠️ Flexible filter options (e.g., show only connectable or named devices)
+- 📱 Optimized for mobile debugging workflows (e.g., testing IoT or BLE devices)
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Getting Started
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+> Coming soon — Add installation and usage instructions here.
