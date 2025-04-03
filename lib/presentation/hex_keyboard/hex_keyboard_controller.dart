@@ -149,7 +149,7 @@ class _HexKeyboardOverlay extends StatelessWidget {
   }
 }
 
-// 共用的鍵盤按鈕區域
+// Shared keyboard button area
 class _HexKeys extends StatelessWidget {
   final HexKeyboardController controller;
 
