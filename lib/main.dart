@@ -8,6 +8,7 @@ import 'package:flutter_bluetooth_debugger_tool/service/user_info/user_preferenc
 import 'package:provider/provider.dart';
 
 import 'Infrastructure/service/user_info/user_preferences.dart';
+import 'presentation/hex_keyboard/hex_keyboard_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ class AppRoot extends StatelessWidget {
             sharedPreferences: sharedPreferences,
           )),
           Provider<BluetoothDataStreamManager>(create: (_) => bluetoothDataStreamManager),
+          ChangeNotifierProvider(create: (_) => HexKeyboardManager()),
           ChangeNotifierProvider<BluetoothTaskChangeNotifier>(create: (_) => BluetoothTaskChangeNotifier(bluetoothTask: bluetoothTask)),
         ],
         child: const HomeScreen(),

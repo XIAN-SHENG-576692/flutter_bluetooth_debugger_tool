@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_bluetooth_debugger_tool/presentation/hex_keyboard/hex_keyboard_input_field.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/view/detail/value_display.dart';
 import 'package:flutter_cxs_common_utils/basic/string.dart';
 import 'package:provider/provider.dart';
 
+import '../../hex_keyboard/hex_keyboard_controller.dart';
+import '../../hex_keyboard/hex_keyboard_manager.dart';
 import '../../utils/snackbar.dart';
 
 class DescriptorController extends ChangeNotifier {
   final BluetoothDescriptor descriptor;
-  final TextEditingController writeController = TextEditingController();
+  final HexKeyboardController writeController = HexKeyboardController();
   ValueObject? value;
   late final StreamSubscription<List<int>> _valueSub;
 
@@ -35,6 +38,7 @@ class DescriptorController extends ChangeNotifier {
   Future<void> write() async {
     try {
       await descriptor.write(writeController.text.hexToUint8List());
+      writeController.clear();
       Snackbar.show(ABC.c, "Descriptor Write : Success", success: true);
     } catch (e, s) {
       Snackbar.show(ABC.c, prettyException("Descriptor Write Error:", e), success: false);
@@ -70,6 +74,7 @@ class _DescriptorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.read<DescriptorController>();
+    final manager = context.read<HexKeyboardManager>();
 
     return ListTile(
       title: Column(
@@ -80,11 +85,9 @@ class _DescriptorView extends StatelessWidget {
           const Divider(),
           const _ValueSection(),
           const SizedBox(height: 8),
-          TextField(
+          HexKeyboardInputField(
             controller: controller.writeController,
-            decoration: const InputDecoration(hintText: 'Enter HEX to Write'),
-            maxLines: 1,
-            style: const TextStyle(fontSize: 14),
+            manager: manager,
           ),
         ],
       ),

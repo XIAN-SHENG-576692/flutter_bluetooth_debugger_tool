@@ -6,14 +6,17 @@ import 'package:flutter_bluetooth_debugger_tool/presentation/view/detail/value_d
 import 'package:provider/provider.dart';
 import 'package:flutter_cxs_common_utils/basic/string.dart';
 
+import '../../hex_keyboard/hex_keyboard_controller.dart';
+import '../../hex_keyboard/hex_keyboard_manager.dart';
 import '../../utils/snackbar.dart';
 import 'descriptor_tile.dart';
+import '../../hex_keyboard/hex_keyboard_input_field.dart';
 
 class CharacteristicController extends ChangeNotifier {
   final BluetoothCharacteristic characteristic;
   List<BluetoothDescriptor> get descriptors => characteristic.descriptors;
   ValueObject? value;
-  final TextEditingController writeController = TextEditingController();
+  final HexKeyboardController writeController = HexKeyboardController();
   late final StreamSubscription<List<int>> _valueSub;
 
   CharacteristicController(this.characteristic) {
@@ -39,6 +42,7 @@ class CharacteristicController extends ChangeNotifier {
         writeController.text.hexToUint8List(),
         withoutResponse: characteristic.properties.writeWithoutResponse,
       );
+      writeController.clear();
       Snackbar.show(ABC.c, "Write: Success", success: true);
       if (characteristic.properties.read) await characteristic.read();
     } catch (e, s) {
@@ -157,15 +161,14 @@ class _WriteField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.read<CharacteristicController>().writeController;
+    final controller = context.read<CharacteristicController>();
+    final manager = context.read<HexKeyboardManager>();
 
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
-      child: TextField(
-        controller: controller,
-        decoration: const InputDecoration(hintText: 'Enter HEX to Write'),
-        maxLines: 1,
-        style: const TextStyle(fontSize: 14),
+      child: HexKeyboardInputField(
+        controller: controller.writeController,
+        manager: manager,
       ),
     );
   }
