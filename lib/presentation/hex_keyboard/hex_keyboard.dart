@@ -4,12 +4,10 @@ import 'hex_keyboard_manager.dart';
 
 class HexKeyboard extends StatelessWidget {
   final HexKeyboardManager manager;
-  final VoidCallback? onClose;
 
   const HexKeyboard({
     super.key,
     required this.manager,
-    this.onClose,
   });
 
   @override

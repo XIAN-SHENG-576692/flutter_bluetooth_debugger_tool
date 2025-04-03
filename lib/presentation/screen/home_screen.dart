@@ -71,7 +71,6 @@ class HomeScreen extends StatelessWidget {
             ? Row()
             : HexKeyboard(
               manager: manager,
-              onClose: () => manager.clearActive(),
             ),
         ],
       ),
