@@ -28,6 +28,14 @@ class HexKeyboardInputField extends StatelessWidget {
       onTap: () {
         manager.setActive(controller);
       },
+      contextMenuBuilder: (context, editableTextState) {
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: editableTextState.contextMenuAnchors,
+          buttonItems: [
+            ...editableTextState.contextMenuButtonItems, // Native items.
+          ],
+        );
+      },
       decoration: const InputDecoration(
         hintText: 'Hex Input',
       ),
