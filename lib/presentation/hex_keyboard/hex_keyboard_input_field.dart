@@ -18,17 +18,41 @@ class HexKeyboardInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller.textController,
-      readOnly: true,
+      readOnly: false,
+      keyboardType: TextInputType.none,
+      showCursor: true,
+      enableInteractiveSelection: true,
+      inputFormatters: [
+        _UpperCaseHexFormatter(),
+      ],
       onTap: () {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
         manager.setActive(controller);
       },
-      showCursor: true,
       decoration: const InputDecoration(
         hintText: 'Hex Input',
-        // border: OutlineInputBorder(),
       ),
       style: const TextStyle(fontSize: 14),
+    );
+  }
+}
+
+class _UpperCaseHexFormatter extends TextInputFormatter {
+  final RegExp _hexRegex = RegExp(r'[0-9a-fA-F]');
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    final filtered = newValue.text
+        .split('')
+        .where((char) => _hexRegex.hasMatch(char))
+        .join()
+        .toUpperCase();
+
+    return TextEditingValue(
+      text: filtered,
+      selection: TextSelection.collapsed(offset: filtered.length),
     );
   }
 }

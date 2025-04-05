@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 extension AppThemeData on ThemeData {
+  Color get hexKeyboardBackgroundColor => brightness == Brightness.light
+      ? Colors.black
+      : Colors.white;
   Color get screenBackgroundColor => brightness == Brightness.light
       ? Colors.white
       : Colors.black;
