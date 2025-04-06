@@ -58,13 +58,14 @@ class ScanResultBuffer {
         _notifyListeners = notifyListeners {
     _readRssiTimer = Timer.periodic(
       const Duration(milliseconds: 100),
-          (timer) {
+      (timer) async {
         if (!isConnected) return;
-        bluetoothDevice.readRssi().then((rssi) {
+        try {
+          final rssi = await bluetoothDevice.readRssi();
           if (_rssi == rssi) return;
           _rssi = rssi;
           _notifyListeners();
-        });
+        } catch(e) {}
       },
     );
     _connectionStateSubscription = bluetoothDevice.connectionState.listen((_) {

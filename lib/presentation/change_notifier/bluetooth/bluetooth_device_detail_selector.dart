@@ -18,7 +18,7 @@ class BluetoothDeviceDetailSelectorChangeNotifier extends ChangeNotifier {
   /// Setter for changing the selected Bluetooth device.
   /// Only triggers listeners if the new device is different from the current one.
   set bluetoothDevice(BluetoothDevice? newDevice) {
-    if (_bluetoothDevice == newDevice) return;
+    // if (_bluetoothDevice == newDevice) return;
     _bluetoothDevice = newDevice;
     notifyListeners(); // Notify UI or other listeners of the change
   }

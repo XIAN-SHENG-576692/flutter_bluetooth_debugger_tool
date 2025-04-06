@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_debugger_tool/Infrastructure/data/bluetooth_module.dart';
 import 'package:flutter_bluetooth_debugger_tool/init/initializer.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/change_notifier/data_stream_task/data_stream_task.dart';
 import 'package:flutter_bluetooth_debugger_tool/presentation/screen/home_screen.dart';
@@ -37,6 +38,7 @@ class AppRoot extends StatelessWidget {
           Provider<UserPreferences>(create: (_) => UserPreferencesImpl(
             sharedPreferences: sharedPreferences,
           )),
+          Provider<BluetoothModule>(create: (_) => bluetoothModule),
           Provider<BluetoothDataStreamManager>(create: (_) => bluetoothDataStreamManager),
           ChangeNotifierProvider(create: (_) => HexKeyboardManager()),
           ChangeNotifierProvider<BluetoothTaskChangeNotifier>(create: (_) => BluetoothTaskChangeNotifier(bluetoothTask: bluetoothTask)),

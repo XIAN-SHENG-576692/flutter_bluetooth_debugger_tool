@@ -18,10 +18,12 @@ class HexKeyboardInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller.textController,
+      focusNode: controller.focusNode,
       readOnly: false,
+      obscureText: false,
+      enableInteractiveSelection: true,
       keyboardType: TextInputType.none,
       showCursor: true,
-      enableInteractiveSelection: true,
       inputFormatters: [
         _UpperCaseHexFormatter(),
       ],

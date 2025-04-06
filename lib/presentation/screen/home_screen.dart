@@ -17,6 +17,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
     final active = context.select<HexKeyboardManager, HexKeyboardController?>((manager) => manager.active);
+    final hasFocus = context.select<HexKeyboardManager, bool>((manager) => manager.hasFocus);
     final manager = context.read<HexKeyboardManager>();
     return PopScope(
       canPop: active == null,
@@ -67,7 +68,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          (active == null)
+          (active == null || !hasFocus)
             ? Row()
             : HexKeyboard(
               manager: manager,

@@ -6,13 +6,15 @@ import 'package:flutter_bluetooth_debugger_tool/Infrastructure/service/data_stre
 import 'package:flutter_bluetooth_debugger_tool/presentation/utils/extra.dart';
 import 'package:flutter_bluetooth_debugger_tool/service/data_stream/bluetooth_data_stream_manager.dart';
 import 'package:provider/provider.dart';
+import '../../../Infrastructure/data/bluetooth_module.dart';
 import '../../change_notifier/bluetooth/bluetooth.dart';
 import '../../utils/snackbar.dart';
 import 'characteristic_tile.dart';
 import 'descriptor_tile.dart';
 import 'service_tile.dart';
 
-class _DeviceProvider extends ChangeNotifier {
+class DeviceProvider extends ChangeNotifier {
+  final BluetoothModule bluetoothModule;
   final BluetoothDevice device;
 
   final TextEditingController mtuTextEditingController = TextEditingController();
@@ -20,7 +22,7 @@ class _DeviceProvider extends ChangeNotifier {
   int? rssi;
   int? mtuSize;
   BluetoothConnectionState connectionState = BluetoothConnectionState.disconnected;
-  List<BluetoothService> get services => device.servicesList;
+  List<BluetoothService> get services => bluetoothModule.getBluetoothServices(device: device).toList(growable: false);
   bool isDiscoveringServices = false;
   bool isConnecting = false;
   bool isDisconnecting = false;
@@ -29,9 +31,10 @@ class _DeviceProvider extends ChangeNotifier {
   late final StreamSubscription<bool> _isConnectingSubscription;
   late final StreamSubscription<bool> _isDisconnectingSubscription;
   late final StreamSubscription<int> _mtuSubscription;
+  late final StreamSubscription _updatedServicesStreamSubscription;
   late final Timer _readRssiTimer;
 
-  _DeviceProvider(this.device) {
+  DeviceProvider(this.bluetoothModule, this.device) {
     _connectionStateSubscription = device.connectionState.listen((state) async {
       connectionState = state;
       if (state == BluetoothConnectionState.connected) {
@@ -59,12 +62,16 @@ class _DeviceProvider extends ChangeNotifier {
       const Duration(milliseconds: 100),
       (timer) async {
         if(!device.isConnected) return;
-        final newRssi = await device.readRssi();
-        if(rssi == newRssi) return;
-        rssi = newRssi;
-        notifyListeners();
+        try {
+          final newRssi = await device.readRssi();
+          if(rssi == newRssi) return;
+          rssi = newRssi;
+          notifyListeners();
+        } catch(e) {}
       },
     );
+
+    _updatedServicesStreamSubscription = bluetoothModule.updatedServicesStream.listen((_) => notifyListeners());
   }
 
   bool get isConnected => connectionState == BluetoothConnectionState.connected;
@@ -85,16 +92,9 @@ class _DeviceProvider extends ChangeNotifier {
     if(!device.isConnected) return;
     isDiscoveringServices = true;
     notifyListeners();
-    try {
-      final services = await device.discoverServices();
-      dataStreamManager.registerTask(
-        device: device,
-        services: services,
-      );
-    } finally {
-      isDiscoveringServices = false;
-      notifyListeners();
-    }
+    await bluetoothModule.discover(device: device);
+    isDiscoveringServices = false;
+    notifyListeners();
   }
 
   Future<void> requestMtu(int mtu) async {
@@ -107,6 +107,7 @@ class _DeviceProvider extends ChangeNotifier {
     _isConnectingSubscription.cancel();
     _isDisconnectingSubscription.cancel();
     mtuTextEditingController.dispose();
+    _updatedServicesStreamSubscription.cancel();
   }
 
   @override
@@ -123,12 +124,13 @@ class DeviceDetailView extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final bluetoothModule = context.read<BluetoothModule>();
     final device = context.read<BluetoothDeviceDetailSelectorChangeNotifier>().bluetoothDevice;
     if(device == null) return Scaffold();
     return ChangeNotifierProvider(
-      create: (_) => _DeviceProvider(device),
+      create: (_) => DeviceProvider(bluetoothModule, device),
       builder: (context, _) {
-        final device = context.read<_DeviceProvider>().device;
+        final device = context.read<DeviceProvider>().device;
         return ScaffoldMessenger(
           key: Snackbar.snackBarKeyC,
           child: Scaffold(
@@ -158,14 +160,14 @@ class ConnectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<_DeviceProvider, (bool, bool, bool)>(
+    return Selector<DeviceProvider, (bool, bool, bool)>(
       selector: (_, provider) =>
       (provider.isConnecting, provider.isDisconnecting, provider.isConnected),
       builder: (_, state, __) {
         final isConnecting = state.$1;
         final isDisconnecting = state.$2;
         final isConnected = state.$3;
-        final provider = context.read<_DeviceProvider>();
+        final provider = context.read<DeviceProvider>();
 
         return Row(
           children: [
@@ -201,7 +203,7 @@ class DeviceIdTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remoteId = context.read<_DeviceProvider>().device.remoteId;
+    final remoteId = context.read<DeviceProvider>().device.remoteId;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text('$remoteId'),
@@ -218,13 +220,13 @@ class ConnectionStatusTile extends StatelessWidget {
       leading: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Selector<_DeviceProvider, bool>(
+          Selector<DeviceProvider, bool>(
             selector: (_, p) => p.isConnected,
             builder: (_, isConnected, __) {
               return isConnected ? const Icon(Icons.bluetooth_connected) : const Icon(Icons.bluetooth_disabled);
             },
           ),
-          Selector<_DeviceProvider, int?>(
+          Selector<DeviceProvider, int?>(
             selector: (_, p) => p.rssi,
             builder: (_, rssi, __) {
               return Text(
@@ -235,7 +237,7 @@ class ConnectionStatusTile extends StatelessWidget {
           ),
         ],
       ),
-      title: Selector<_DeviceProvider, BluetoothConnectionState>(
+      title: Selector<DeviceProvider, BluetoothConnectionState>(
         selector: (_, p) => p.connectionState,
         builder: (_, state, __) {
           return Text(
@@ -244,10 +246,10 @@ class ConnectionStatusTile extends StatelessWidget {
           );
         },
       ),
-      trailing: Selector<_DeviceProvider, bool>(
+      trailing: Selector<DeviceProvider, bool>(
         selector: (_, p) => p.isDiscoveringServices,
         builder: (_, isDiscovering, __) {
-          final provider = context.read<_DeviceProvider>();
+          final provider = context.read<DeviceProvider>();
           final taskProvider = context.read<BluetoothDataStreamManager>() as BluetoothDataStreamManagerImplFbp;
           return IndexedStack(
             index: isDiscovering ? 1 : 0,
@@ -274,11 +276,11 @@ class MtuSizeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<_DeviceProvider, int?>(
+    return Selector<DeviceProvider, int?>(
       selector: (_, p) => p.mtuSize,
       builder: (context, mtuSize, _) {
         final theme = Theme.of(context);
-        final provider = context.read<_DeviceProvider>();
+        final provider = context.read<DeviceProvider>();
         return ListTile(
           leading: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -310,8 +312,8 @@ class ServicesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<_DeviceProvider, List<BluetoothService>>(
-      selector: (_, p) => p.services,
+    return Selector<DeviceProvider, List<BluetoothService>>(
+      selector: (_, p) => p.services.toList(growable: false),
       builder: (_, services, __) {
         return Column(
           children: services

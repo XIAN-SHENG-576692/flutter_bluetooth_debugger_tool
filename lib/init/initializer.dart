@@ -7,6 +7,8 @@ import 'package:flutter_bluetooth_debugger_tool/service/file/file_handler.dart';
 import 'package:path_provider_cxs_utils/path_provider_cxs_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Infrastructure/data/bluetooth_module.dart';
+
 part 'application.dart';
 part 'path.dart';
 part 'service.dart';
@@ -24,7 +26,8 @@ class InitializerImpl extends Initializer {
     fileHandler = FileHandlerImpl();
     sharedPreferences = await SharedPreferences.getInstance();
 
-    bluetoothDataStreamManager = BluetoothDataStreamManagerImplFbp();
+    bluetoothModule = BluetoothModule();
+    bluetoothDataStreamManager = BluetoothDataStreamManagerImplFbp(bluetoothModule: bluetoothModule);
 
     bluetoothTask = BluetoothTask(
       bluetoothDataStreamManager: bluetoothDataStreamManager,
