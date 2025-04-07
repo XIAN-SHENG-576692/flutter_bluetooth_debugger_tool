@@ -48,6 +48,7 @@ class BluetoothServicesBuffer {
   /// Manually trigger service discovery
   Future<bool> discover() async {
     try {
+      if(services.isNotEmpty) return true;
       services = await device.discoverServices();
       _tracker._controller.add(
         _StreamControllerBuffer(
